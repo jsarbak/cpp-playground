@@ -1,0 +1,36 @@
+# version: "3.3" # no support for group_add
+version: "2.4"
+services:
+  joedev-svc:
+    build: .
+    image: dev:latest
+    # privileged: true
+    ulimits:
+        core: -1
+    cap_add: 
+        - CAP_SYS_PTRACE
+        - CAP_IPC_LOCK
+        - CAP_NET_RAW
+        - CAP_NET_BROADCAST
+        #- ALL
+    ipc: host
+    network_mode: host
+    #ports:
+      #- 8080
+      #- 8081
+    environment:
+        - USER
+        - "HOME=${USER_HOME}"
+        - "IN_CONTAINER=joedev-svc"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/etc/passwd:/etc/passwd:ro"
+      - "/etc/group:/etc/group:ro"
+      - "${USER_HOME}:${USER_HOME}"
+    user: "${USER_ID}:${USER_GROUP_ID}"
+    group_add: 
+        - "${DOCKER_GROUP_ID}"
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    working_dir: ${PWD}
+    command: /bin/bash --init-file ${HOME}/.profile
